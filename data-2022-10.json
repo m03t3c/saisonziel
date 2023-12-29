@@ -208,7 +208,7 @@
     "lost": 19,
     "draw": 8,
     "goalDiff": -27
-  }
+  },
   {
     "teamInfoId": 6,
     "teamName": "Bayer Leverkusen",
@@ -250,5 +250,5 @@
     "lost": 19,
     "draw": 5,
     "goalDiff": -32
-  },
+  }
 ]
