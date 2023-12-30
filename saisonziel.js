@@ -60,7 +60,7 @@ function updateData(z="league") {
 
 	request = new XMLHttpRequest();
 	
-	if(debug) request.open("GET","/testdata/data-2022-"+spieltag+".json");
+	if(debug) request.open("GET","http://s990362090.online.de/saisonziel/testdata/data-2022-"+spieltag+".json");
 	else request.open("GET","https://api.openligadb.de/getbltable/"+league+"/"+saison);
 	request.setRequestHeader("accept","text/json");
 	request.addEventListener('load', function(event) {
