@@ -142,9 +142,10 @@ function buildTable() {
 	if (container) {
 		
 		ta = container.appendChild(document.createElement("table"));
-		ta.setAttribute('class', 'w3-table w3-striped w3-border w3-padding-small');
+		ta.setAttribute('class', 'w3-table w3-striped w3-border w3-padding-tiny w3-small');
 		ta.setAttribute('style', 'vertical-align:center;');
 		tr = ta.insertRow(0);
+		tr.outHTML = "<thead><tr></tr></thead>";
 
 		td = tr.insertCell(); td.outerHTML = "<th>Pl</th>";
 		td = tr.insertCell(); td.outerHTML = "<th>Verein</th>";
