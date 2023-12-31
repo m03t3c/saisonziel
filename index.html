@@ -39,7 +39,7 @@
 </head>
 <body>
 <h1 class="w3-container">Saisonzielrechner</h1>
-<div class="w3-container w3-padding-large">Haben wir den Klassenerhalt schon sicher? Können wir noch international spielen?</div>
+<div class="w3-container w3-padding-large">Haben wir den Klassenerhalt schon sicher? K&ouml;nnen wir noch international spielen?</div>
 <div class="w3-bar w3-orange" id="debug" style="display: none;">
   <span class="w3-bar-item">Debug Data:</span>
   <button class="w3-bar-item w3-button w3-hover-deep-orange tablink" onclick="league='bl1'; saison=2022; spieltag=0; updateData(ziel);" id="debug0">BL1 2022 0</button>
@@ -57,7 +57,7 @@
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('cl');" id="cl">Champions League</button>
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('win');" id="win">Meister</button>
 </div>
-<div class="w3-container w3-padding-large">Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, benötigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel"></span></div>
+<div class="w3-container w3-padding-large">Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, ben&ouml;tigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel"></span></div>
 <div id="zieltabelle" class="w3-container w3-padding-small">
 	<table class="w3-table w3-striped w3-border">
 		<tr>
@@ -171,7 +171,7 @@
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-bar-item" style="width:50pt">Zi</div>
-	  		<div class="w3-bar-item">Zielpunkte (zu erreichend für Saisonziel)<br />*) diese Punkte sind in den ausstehenden Spieltagen nicht mehr erreichbar,<br />werden aber der Vollständigkeit noch angezeigt.</div>
+	  		<div class="w3-bar-item">Zielpunkte (zu erreichend f&uuml;r Saisonziel)<br />*) diese Punkte sind in den ausstehenden Spieltagen nicht mehr erreichbar,<br />werden aber der Vollst&auml;ndigkeit noch angezeigt.</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-bar-item" style="width:50pt">Fhlnd</div>
@@ -187,7 +187,7 @@
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-bar-item" style="width:50pt;"><img src="icons/3.png" class="w3-bar-item"></div>
-	  		<div class="w3-bar-item">Saisonziel nur noch mit Schützenhilfe erreichbar</div>
+	  		<div class="w3-bar-item">Saisonziel nur noch mit Sch&uuml;tzenhilfe erreichbar</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-bar-item" style="width:50pt;"><img src="icons/4.png" class="w3-bar-item"></div>
@@ -202,26 +202,26 @@
 
 <button class="collapsible w3-bar w3-button w3-khaki">Berechnung</button>
 <div class="content w3-container w3-white">
-  	<p>Die Berechnungsmethodik basiert auf dem mathematischen Rätsel von <a href="https://www.spektrum.de/raetsel/meister-und-absteiger/1777404" target="_blank">Heinrich Hemme: Welches ist die höchste Punktzahl, mit der man absteigen kann?</a>. Dabei werden alle zu erreichenden Punkte zwischen den Plätzen 1-16 gleichverteilt.</p>
-  	<p>Ich habe diese Methodik wie folgt adaptiert: Wenn der Absteiger die höchste maximale Punktzahl erreicht, muss der erste Nichtabsteiger mindestens einen Punkt mehr haben. Ich lasse hier die Tordifferenz bewusst außer acht, da die Frage, ab wann eine bestimmte Differenz ausreicht, wohl nicht abschließend geklärt werden kann, und es die Berechnung vereinfacht. Außerdem geht es mir darum, ob das Saisonziel aus eigener Kraft erreicht werden kann.</p>
-  	<p>Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf ändern sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte einfahren, teilweise natürlich auch über das Ziel hinaus. Dadurch werden bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte über Platz 16 zunächst herausgerechnet. Schmatisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
+  	<p>Die Berechnungsmethodik basiert auf dem mathematischen R&auml;tsel von <a href="https://www.spektrum.de/raetsel/meister-und-absteiger/1777404" target="_blank">Heinrich Hemme: Welches ist die h&ouml;chste Punktzahl, mit der man absteigen kann?</a>. Dabei werden alle zu erreichenden Punkte zwischen den Pl&auml;tzen 1-16 gleichverteilt.</p>
+  	<p>Ich habe diese Methodik wie folgt adaptiert: Wenn der Absteiger die h&ouml;chste maximale Punktzahl erreicht, muss der erste Nichtabsteiger mindestens einen Punkt mehr haben. (Ich lasse hier die Tordifferenz bewusst au&szlig;er acht, da die Frage, ab wann eine bestimmte Differenz ausreicht, wohl nicht abschlie&szlig;end gekl&auml;rt werden kann (siehe zum Beispiel <a href="https://11freunde.de/artikel/drama-baby-drama/8605211" target="_blank">die Bundesligasaison 1977/78</a>). Und es die Berechnung vereinfacht. Au&szlig;erdem geht es mir darum, ob das Saisonziel aus eigener Kraft erreicht werden kann.)</p>
+  	<p>Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf &auml;ndert sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte eingefahren haben, teilweise nat&uuml;rlich auch &uuml;ber das Ziel hinaus. Dadurch werden hier bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte &uuml;ber Platz 16 zun&auml;chst herausgerechnet. Schmatisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
   	<p class="w3-code">
 (<br />
-&nbsp;(((ausstehende Spiele - Spiele von Mannschaften auf Platz 17-18 gegeneinander) * 3) <br />
-&nbsp;&nbsp;- Summe aller bereits erreichten Punkte über letztem Abstiegsplatz <br />
+&nbsp;(((ausstehende Spiele - Spiele von Mannschaften auf den Pl&auml;tzen 17-18 gegeneinander) * 3) <br />
+&nbsp;&nbsp;- Summe aller bereits erreichten Punkte &uuml;ber dem letztem Abstiegsplatz <br />
 &nbsp;) <br />
-&nbsp;/ Anzahl Nichtabstiegs- und letzte Abstiegsmannschaft<br />
+&nbsp;/ Anzahl Nichtabstiegsmannschaften plus letzte Abstiegsmannschaft<br />
 ) <br />
-+ Punkte beste noch nicht gesichert gerettete Mannschaft <br />
++ Punkte der besten noch nicht gesichert-gerettete Mannschaft <br />
 + 1</p>
-  	<p>In diese Berechnungen werden nur Mannschaften einbezogen, die  noch nicht gesichert abgestiegen oder gerettet sind. Die selbe Methodik lässt sich auch auf das Erreichen der internationalen Plätze, der Champions League, und sogar des Meistertitels anwenden.</p>
-  	<p>Die für das jeweilige Saisonziel zu erreichende Punktzahl für Mannschaften, die noch keinen solchen Platz innehaben (also sich unter dem Strich befinden), muss man wie folgt interpretieren: Wieviele Punkte sind notwendig, um auf jeden Fall noch das Saisonziel zu erreichen. Mannschaften, die einen solchen Platz schon einnehmen, müssen lediglich diejenige Anzahl an Punkten erreichen, die an den verbleibenden Spieltagen von besten nicht-qualifizierten nicht mehr eingeholt werden können. Diese Unterscheidung ist notwendig, da solche Mannschaften anderen keine Punkte mehr wegnehmen müssen.</p>
-  	<p><a href="javascript:toggleDebug();">Aktiviere/deaktiviere den Debug-Modus</a>, um verschiedene Beispielspieltage aus der Saison 2022/2023 zu testen.</p>
-  	<p>Die Daten werden übrigens per API von <a href="https://www.openligadb.de" target="_blank">OpenLigaDB</a> bereitgestellt, die Icons von <a target="_blank" href="https://icons8.com">Icons8</a>.</p>
+  	<p>In diese Berechnungen werden nur Mannschaften einbezogen, die  noch nicht gesichert abgestiegen oder gerettet sind. Die selbe Methodik l&auml;sst sich auch auf das Erreichen der internationalen Pl&auml;tze, der Champions League, und sogar des Meistertitels anwenden.</p>
+  	<p>Die f&uuml;r das jeweilige Saisonziel zu erreichende Punktzahl f&uuml;r Mannschaften, die noch keinen solchen Platz innehaben (also sich unter dem Strich befinden), muss man wie folgt interpretieren: Wieviele Punkte sind notwendig, um auf jeden Fall noch das Saisonziel zu erreichen. Mannschaften, die einen solchen, als Saisonziel qualifizierenden Tabellenplatz schon einnehmen, m&uuml;ssen lediglich diejenige Anzahl an Punkten erreichen, die an den verbleibenden Spieltagen von der am besten nicht-qualifizierten Mannschaft nicht mehr erreicht werden kann (also mehr als (ausstehende Spiele)*3). Diese Unterscheidung ist notwendig, da solche Mannschaften anderen keine Punkte mehr wegnehmen m&uuml;ssen.</p>
+  	<p>F&uuml;r die Tabelle oben kann <a href="javascript:toggleDebug();">ein Debug-Modus aktiviert/deaktiviert werden</a>, um verschiedene Beispielspieltage aus der Saison 2022/2023 zu testen.</p>
+  	<p>Die Daten werden &uuml;brigens per API von <a href="https://www.openligadb.de" target="_blank">OpenLigaDB</a> bereitgestellt, die Icons von <a target="_blank" href="https://icons8.com">Icons8</a>.</p>
 </div>
 <button class="collapsible w3-bar w3-button w3-khaki">Hintergrund</button>
 <div class="content w3-container w3-white">
-  	<p>Als Fan des VfB Stuttgarts erlebe ich im Herbst/Winter 2023 eine lang vermisste Euphorie ob der guten Ergebnisse der Mannschaft. Dennoch haben die letzten Jahre mit zwei Abstiegen und vielen bangen Momenten im Abstiegskampf tiefe Narben hinterlassen, so dass es erstmal gilt ein solches erneutes Szenario nicht wieder zu erleben. Und während es Erfahrungswerte gibt ("mit 40 Punkten ist man gerettet"), möchte ich lieber ganz genau wissen, ab wann der VfB nichts mehr mit dem Abstieg zu tun hat. Und so entstand dieses kleine Projekt.</p>
+  	<p>Als Fan des VfB Stuttgarts erlebe ich im Herbst/Winter 2023 eine lang vermisste Euphorie ob der guten Ergebnisse der Mannschaft. Dennoch haben die letzten Jahre mit zwei Abstiegen und vielen bangen Momenten im Abstiegskampf tiefe Narben hinterlassen, so dass es erstmal gilt ein solches erneutes Szenario nicht wieder zu erleben. Und w&auml;hrend es Erfahrungswerte gibt ("mit 40 Punkten ist man gerettet"), m&ouml;chte ich lieber ganz genau wissen, ab wann der VfB nichts mehr mit dem Abstieg zu tun hat. Und so entstand dieses kleine Projekt.</p>
 </div>
 <div class="w3-container w3-white">
   	<p>&nbsp;</p>
