@@ -21,13 +21,13 @@ var spiele_egal=0;
 var platz = 15;
 var spieltag=0;
 var ziel;
-
+ 
 var gotMatches = false;
 var tabelle = [];
 var matches = [];
 var request = "";
 
-// debug data
+// debug data -- can be set via toggleDebug as well
 if(debug) {
 	saison = 2022;
 	spieltag = 30; // try 0, 10, 26, 30, 32, 33
