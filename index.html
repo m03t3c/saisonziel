@@ -5,7 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Bundesliga Saisonzielrechner</title>
     <script src="saisonziel.js" defer></script>
-	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">	
+    <link rel="shortcut icon" href="favicon.ico">
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">	
 	<style>
 	.collapsible {
 	  background-color: #777;
@@ -204,7 +205,7 @@
 <div class="content w3-container w3-white">
   	<p>Die Berechnungsmethodik basiert auf dem mathematischen R&auml;tsel von <a href="https://www.spektrum.de/raetsel/meister-und-absteiger/1777404" target="_blank">Heinrich Hemme: Welches ist die h&ouml;chste Punktzahl, mit der man absteigen kann?</a>. Dabei werden alle zu erreichenden Punkte zwischen den Pl&auml;tzen 1-16 gleichverteilt.</p>
   	<p>Ich habe diese Methodik wie folgt adaptiert: Wenn der Absteiger die h&ouml;chste maximale Punktzahl erreicht, muss der erste Nichtabsteiger mindestens einen Punkt mehr haben. (Ich lasse hier die Tordifferenz bewusst au&szlig;er acht, da die Frage, ab wann eine bestimmte Differenz ausreicht, wohl nicht abschlie&szlig;end gekl&auml;rt werden kann (siehe zum Beispiel <a href="https://11freunde.de/artikel/drama-baby-drama/8605211" target="_blank">die Bundesligasaison 1977/78</a>). Und es die Berechnung vereinfacht. Au&szlig;erdem geht es mir darum, ob das Saisonziel aus eigener Kraft erreicht werden kann.)</p>
-  	<p>Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf &auml;ndert sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte eingefahren haben, teilweise nat&uuml;rlich auch &uuml;ber das Ziel hinaus. Dadurch werden hier bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte &uuml;ber Platz 16 zun&auml;chst herausgerechnet. Schmatisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
+  	<p>Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf &auml;ndert sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte eingefahren haben, teilweise nat&uuml;rlich auch &uuml;ber das Ziel hinaus. Dadurch werden hier bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte &uuml;ber Platz 16 zun&auml;chst herausgerechnet. Schematisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
   	<p class="w3-code">
 (<br />
 &nbsp;(((ausstehende Spiele - Spiele von Mannschaften auf den Pl&auml;tzen 17-18 gegeneinander) * 3) <br />
