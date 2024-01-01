@@ -152,7 +152,7 @@ function buildTable() {
 		td = tr.insertCell(); td.outerHTML = "<th>Sp</th>";
 		td = tr.insertCell(); td.outerHTML = "<th>Pk</th>";
 		td = tr.insertCell(); td.outerHTML = "<th>Zi</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Fhlnd</th>";
+		td = tr.insertCell(); td.outerHTML = "<th>Fhl</th>";
 		td = tr.insertCell(); td.outerHTML = "<th>Status</th>";
 		
 		tabelle.forEach(function (m, i) {
@@ -161,7 +161,7 @@ function buildTable() {
 
 			if(i==platz) tr.setAttribute('style', 'border-top: solid black;');
 			td = tr.insertCell(); td.innerHTML = i+1;
-			td = tr.insertCell(); td.innerHTML = m["teamName"];
+			td = tr.insertCell(); td.innerHTML = m["shortName"];
 			td = tr.insertCell(); td.innerHTML = m["matches"];
 			td = tr.insertCell(); td.innerHTML =  m["points"];
 
