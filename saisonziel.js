@@ -161,7 +161,7 @@ function buildTable() {
 
 			if(i==platz) tr.setAttribute('style', 'border-top: solid black;');
 			td = tr.insertCell(); td.innerHTML = i+1;
-			td = tr.insertCell(); td.innerHTML = m["teamName"];
+			td = tr.insertCell(); td.innerHTML = m["shortName"];
 			td = tr.insertCell(); td.innerHTML = m["matches"];
 			td = tr.insertCell(); td.innerHTML =  m["points"];
 
