@@ -189,7 +189,7 @@ function buildTable() {
 			td.innerHTML = ind_ziel;
 			if(ind_ziel>(((34-m["matches"])*3)+m["points"])) td.innerHTML += "*";
 
-			if(debug) console.log("zielerreichbarkeit: "+ind_ziel+">"+(((34-m["matches"])*3)+m["points"]));
+			if(debug) console.log("Target achievement feasible? "+ind_ziel+">"+(((34-m["matches"])*3)+m["points"]));
 
 			td = tr.insertCell(); 
 			if(m["points"]>=ind_ziel) {
