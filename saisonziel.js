@@ -72,7 +72,7 @@ function updateData(z="league") {
 	tabelle = [];
 	spiele_egal=0;
 	request = "";
-	document.getElementById("zieltabelle").innerHTML="";
+	// document.getElementById("zieltabelle").innerHTML="";
 
 	// updating navigation bar
 	var i, x, tablinks;
@@ -155,31 +155,23 @@ function buildTable() {
 	}
   	document.getElementById("Zielpunkte").innerHTML = zielpunkte;
 	if(zielpunkte>(((34-tabelle[platz]["matches"])*3)+tabelle[platz]["points"])) document.getElementById("Zielpunkte").innerHTML += "*";
-  	if(((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]<zielpunkte) document.getElementById("ind_ziel").innerHTML = "Ansonsten gen&uuml;gen "+(((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"])+" Punkte.";
+  	if(((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]<zielpunkte) { 
+  		document.getElementById("ind_ziel_text").style.display = "block";
+  		document.getElementById("ind_ziel").innerHTML = (((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]);
+  	} else {
+  		document.getElementById("ind_ziel_text").style.display = "none";
+  	}
 
-	let container = document.getElementById("zieltabelle"),
-			ta, tr, td;
+	var ta, tr, td;
 	var ind_ziel = zielpunkte;
-	while (container.firstChild) {
-		container.removeChild(container.firstChild);
+
+	let targettable = document.getElementById("mytable");
+	while(targettable.rows.length > 1) {
+		targettable.deleteRow(-1);
 	}
 
-	if (container) {
-		
-		ta = container.appendChild(document.createElement("table"));
-		ta.setAttribute('class', 'w3-table w3-striped w3-border w3-padding-small w3-small');
-		ta.setAttribute('style', 'vertical-align:center; max-width:600px;');
-		tr = ta.insertRow(0);
-		tr.setAttribute('class', 'w3-khaki');
-
-		td = tr.insertCell(); td.outerHTML = "<th>Pl</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Verein</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Sp</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Pk</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Zi</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Fhl</th>";
-		td = tr.insertCell(); td.outerHTML = "<th>Status</th>";
-		
+	if (targettable) {
+		ta = targettable;
 		tabelle.forEach(function (m, i) {
 
 			tr = ta.insertRow(i+1);
