@@ -186,6 +186,8 @@ function buildTable() {
 
 			if(i<platz && (((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"])<zielpunkte) ind_ziel = ((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"];
 			else ind_ziel = zielpunkte;
+
+			// check: i>platz+1: requires in addition the points in difference to platz?!
 			td.innerHTML = ind_ziel;
 			if(ind_ziel>(((34-m["matches"])*3)+m["points"])) td.innerHTML += "*";
 
