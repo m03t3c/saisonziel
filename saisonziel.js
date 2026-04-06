@@ -25,12 +25,34 @@ SOFTWARE.
 
 
 var saisonziel="ChampionsLeague";
-var config = new Object();
-config["bl1"] = new Object(); // 1. Bundesliga
-config["bl1"]["league"] = 15; // corresponding to position 16 in the standings
-config["bl1"]["int"] = 6; // corresponding to position 7 in the standings
-config["bl1"]["cl"] = 4;// corresponding to position 16 in the standings
-config["bl1"]["win"] = 1;
+// Per-league configuration. The `goals` keys (league/int/cl/win) are stable
+// identifiers shared with the goal-button IDs in index.html and the algorithm
+// in buildTable(). Each goal's `pos` is the 0-indexed standings position of
+// the highest team that does NOT achieve that goal (i.e., the threshold just
+// below the line). `label` is the German display name shown on the goal
+// button when this league is active.
+var config = {
+	bl1: {
+		name: "Bundesliga",
+		matchdays: 34,
+		goals: {
+			league: { pos: 15, label: "Klassenerhalt" },     // top 15 safe (16 = Relegationsplatz)
+			int:    { pos: 6,  label: "International" },     // top 6 international
+			cl:     { pos: 4,  label: "Champions League" },  // top 4 (incl. recent coefficient bonus spot)
+			win:    { pos: 1,  label: "Meister" }            // top 1
+		}
+	},
+	bl2: {
+		name: "2. Bundesliga",
+		matchdays: 34,
+		goals: {
+			league: { pos: 15, label: "Klassenerhalt" },         // top 15 safe (16 = Relegationsplatz)
+			int:    { pos: 3,  label: "Aufstiegsrelegation" },   // top 3 (incl. playoff spot)
+			cl:     { pos: 2,  label: "Direktaufstieg" },        // top 2 directly promoted
+			win:    { pos: 1,  label: "Meister" }                // top 1
+		}
+	}
+};
 
 // debug mode - see data below
 var debug = false;
@@ -74,21 +96,38 @@ updateData(ziel);
 function updateData(z="league") {
 	ziel=z;
 	if(!config[league]) league = "bl1";
-	if(config[league][ziel]) platz = config[league][ziel];
-	else platz = 15;
-	
-	if(debug) console.log("updating Data for:\nLeague:"+league+".\ntarget:"+ziel+".\nstanding:"+platz+".\nconfig length:"+config[league].length);
+	var goalDef = config[league].goals[ziel];
+	if(!goalDef) {
+		ziel = "league";
+		goalDef = config[league].goals.league;
+	}
+	platz = goalDef.pos;
+
+	if(debug) console.log("updating Data for:\nLeague:"+league+".\ntarget:"+ziel+".\nstanding:"+platz);
 	tabelle = [];
 	spiele_egal=0;
 	request = "";
 	// document.getElementById("zieltabelle").innerHTML="";
 
-	// updating navigation bar
+	// updating top-level league nav
+	var li, leaguelinks = document.getElementsByClassName("leaguelink");
+	for (li = 0; li < leaguelinks.length; li++) {
+		leaguelinks[li].className = leaguelinks[li].className.replace(" w3-white", "");
+	}
+	var activeLeagueBtn = document.getElementById("lg-"+league);
+	if(activeLeagueBtn) activeLeagueBtn.className += " w3-white";
+
+	// updating goal navigation bar - reset, relabel for the active league, then mark active
 	var i, x, tablinks;
 	tablinks = document.getElementsByClassName("tablink");
 	for (i = 0; i < tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(" w3-white", "");
 		tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+	}
+	var goalKeys = Object.keys(config[league].goals);
+	for (i = 0; i < goalKeys.length; i++) {
+		var goalBtn = document.getElementById(goalKeys[i]);
+		if(goalBtn) goalBtn.innerHTML = config[league].goals[goalKeys[i]].label;
 	}
 	document.getElementById(ziel).className += " w3-white";
 	if(debug) document.getElementById("debug"+spieltag).className += " w3-red";
@@ -114,7 +153,8 @@ function updateData(z="league") {
 
 
 function buildTable() {
-	
+
+	var mdcount = config[league].matchdays;
 	spieltag=tabelle[platz]["matches"];
 	var punkte=tabelle[platz]["points"];
 
@@ -122,7 +162,7 @@ function buildTable() {
 	var includedTeams = new Array();
 	var countTeams = 0;
 	for(let i = 0; i<tabelle.length; i++) {
-		if((tabelle[i]["points"]<=((34-tabelle[platz]["matches"])*3)+tabelle[platz]["points"]) && (tabelle[platz-1]["points"]<=((34-tabelle[i]["matches"])*3)+tabelle[i]["points"])) { 
+		if((tabelle[i]["points"]<=((mdcount-tabelle[platz]["matches"])*3)+tabelle[platz]["points"]) && (tabelle[platz-1]["points"]<=((mdcount-tabelle[i]["matches"])*3)+tabelle[i]["points"])) { 
 		// if my points do not qualify yet for the target after match 34 and if the target position can still be obtained with my points after match 34 (is still in reach)
 			tabelle[i]["standing"] = i;
 			includedTeams.push(tabelle[i]);
@@ -135,8 +175,8 @@ function buildTable() {
   	var diff_vorgaenger = 0; 
   	for(let t1 =0; t1<includedTeams.length; t1++) {
 		if(includedTeams[t1]["standing"] <= platz) diff_vorgaenger += includedTeams[0]["points"]-includedTeams[t1]["points"]; // add point difference to highest team still not secured
-		if(debug) console.log("checking gamesCount: team #"+t1+" position: "+includedTeams[t1]["standing"]+"; Team: "+includedTeams[t1]["teamName"]+" with "+(34-includedTeams[t1]["matches"])+" matches; out of "+includedTeams.length+" teams included.");
-		gamesCount += 34-includedTeams[t1]["matches"];
+		if(debug) console.log("checking gamesCount: team #"+t1+" position: "+includedTeams[t1]["standing"]+"; Team: "+includedTeams[t1]["teamName"]+" with "+(mdcount-includedTeams[t1]["matches"])+" matches; out of "+includedTeams.length+" teams included.");
+		gamesCount += mdcount-includedTeams[t1]["matches"];
 		for(let t2=0; t2<includedTeams.length; t2++) {
 			if(includedTeams[t1]["teamInfoId"]==includedTeams[t2]["teamInfoId"]) continue;
 			for(let m=0; m<matches.length; m++) {
@@ -163,10 +203,10 @@ function buildTable() {
 		console.log("!!! Calculation: floor(((((("+gamesCount+"-"+gamesExcluded+")*3)-"+diff_vorgaenger+")/("+(countTeams)+"))+"+includedTeams[0]["points"]+")+1="+zielpunkte);
 	}
   	document.getElementById("Zielpunkte").innerHTML = zielpunkte;
-	if(zielpunkte>(((34-tabelle[platz]["matches"])*3)+tabelle[platz]["points"])) document.getElementById("Zielpunkte").innerHTML += "*";
-  	if(((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]<zielpunkte) { 
+	if(zielpunkte>(((mdcount-tabelle[platz]["matches"])*3)+tabelle[platz]["points"])) document.getElementById("Zielpunkte").innerHTML += "*";
+  	if(((mdcount-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]<zielpunkte) { 
   		document.getElementById("ind_ziel_text").style.display = "block";
-  		document.getElementById("ind_ziel").innerHTML = (((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]);
+  		document.getElementById("ind_ziel").innerHTML = (((mdcount-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"]);
   	} else {
   		document.getElementById("ind_ziel_text").style.display = "none";
   	}
@@ -193,14 +233,14 @@ function buildTable() {
 
 			td = tr.insertCell(); 
 
-			if(i<platz && (((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"])<zielpunkte) ind_ziel = ((34-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"];
+			if(i<platz && (((mdcount-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"])<zielpunkte) ind_ziel = ((mdcount-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"];
 			else ind_ziel = zielpunkte;
 
 			// check: i>platz+1: requires in addition the points in difference to platz?!
 			td.innerHTML = ind_ziel;
-			if(ind_ziel>(((34-m["matches"])*3)+m["points"])) td.innerHTML += "*";
+			if(ind_ziel>(((mdcount-m["matches"])*3)+m["points"])) td.innerHTML += "*";
 
-			if(debug) console.log("Target achievement feasible? "+ind_ziel+">"+(((34-m["matches"])*3)+m["points"]));
+			if(debug) console.log("Target achievement feasible? "+ind_ziel+">"+(((mdcount-m["matches"])*3)+m["points"]));
 
 			td = tr.insertCell(); 
 			if(m["points"]>=ind_ziel) {
@@ -210,8 +250,8 @@ function buildTable() {
 
 			td = tr.insertCell(); 
 			if(m["points"]>=ind_ziel) td.innerHTML += txt_erreicht;
-			else if((ind_ziel-m["points"])>((34-m["matches"])*3)) {
-				if((tabelle[platz-1]["points"]-m["points"])<=((34-m["matches"])*3)) td.innerHTML += txt_moeglich;
+			else if((ind_ziel-m["points"])>((mdcount-m["matches"])*3)) {
+				if((tabelle[platz-1]["points"]-m["points"])<=((mdcount-m["matches"])*3)) td.innerHTML += txt_moeglich;
 				else td.innerHTML += txt_verpasst;
 	    	} else td.innerHTML += txt_offen;
 		});
@@ -222,7 +262,7 @@ function buildTable() {
 function getMatches() {
 
 	var openMatches = new XMLHttpRequest();
-	openMatches.open("GET","https://api.openligadb.de/getmatchdata/bl1/"+saison);
+	openMatches.open("GET","https://api.openligadb.de/getmatchdata/"+league+"/"+saison);
 	openMatches.setRequestHeader("accept","text/json");
 	openMatches.addEventListener('load', function(event) {
 	   if (openMatches.status >= 200 && openMatches.status < 300) {
@@ -242,12 +282,26 @@ function toggleDebug() {
 		league='bl1';
 		saison=getCurrentSeason();
 		document.getElementById("debug").setAttribute('style','display:none;');
-	} else { 
-		debug=true; 
-		league='bl1'; 
-		saison=2022; 
-		spieltag=0;  
+	} else {
+		debug=true;
+		league='bl1';
+		saison=2022;
+		spieltag=0;
 		document.getElementById("debug").setAttribute('style','display:block;');
 	}
+	updateData(ziel);
+}
+
+// Switch the active league. Preserves the currently selected goal (Saisonziel)
+// so the user's selection persists across leagues. Debug mode is bound to the
+// bl1 testdata files, so switching leagues exits debug mode automatically.
+function setLeague(l) {
+	if(!config[l] || l === league) return;
+	if(debug) {
+		debug = false;
+		document.getElementById("debug").setAttribute('style','display:none;');
+	}
+	league = l;
+	saison = getCurrentSeason();
 	updateData(ziel);
 }
