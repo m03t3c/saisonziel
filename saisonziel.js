@@ -31,10 +31,15 @@ var saisonziel="ChampionsLeague";
 // the highest team that does NOT achieve that goal (i.e., the threshold just
 // below the line). `label` is the German display name shown on the goal
 // button when this league is active.
+//
+// The matchday count per league is derived dynamically in buildTable() from
+// the standings length ((N-1)*2 for a round-robin), so it does not need to be
+// configured per league and adapts automatically when a league's team count
+// changes (e.g., the Frauen-Bundesliga went 12→14 teams between 2024/25 and
+// 2025/26).
 var config = {
 	bl1: {
 		name: "Bundesliga",
-		matchdays: 34,
 		goals: {
 			league: { pos: 15, label: "Klassenerhalt" },     // top 15 safe (16 = Relegationsplatz)
 			int:    { pos: 6,  label: "International" },     // top 6 international
@@ -44,12 +49,27 @@ var config = {
 	},
 	bl2: {
 		name: "2. Bundesliga",
-		matchdays: 34,
 		goals: {
 			league: { pos: 15, label: "Klassenerhalt" },         // top 15 safe (16 = Relegationsplatz)
 			int:    { pos: 3,  label: "Aufstiegsrelegation" },   // top 3 (incl. playoff spot)
 			cl:     { pos: 2,  label: "Direktaufstieg" },        // top 2 directly promoted
 			win:    { pos: 1,  label: "Meister" }                // top 1
+		}
+	},
+	fbl1: {
+		name: "Frauen-Bundesliga",
+		goals: {
+			// `league` assumes the 14-team format with bottom 2 directly relegated
+			// (no playoff); if the league restructures, update this number.
+			league: { pos: 12, label: "Klassenerhalt" },         // top 12 of 14 safe
+			// The Frauen-Bundesliga's only European competition is the UWCL:
+			// 1st = direct Ligenphase, 2nd & 3rd = Qualifikation. There is no
+			// Europa-League/Europa-Cup equivalent for women, so `int` (any
+			// European spot) collapses onto the same top-3 threshold as `cl`.
+			// Both buttons therefore compute identical targets for fbl1.
+			int:    { pos: 3,  label: "International" },         // top 3 = any CL spot
+			cl:     { pos: 3,  label: "Champions League" },      // top 3 (1 direct group stage + 2 qualifying)
+			win:    { pos: 1,  label: "Meister" }                // top 1 = title + direct CL Ligenphase
 		}
 	}
 };
@@ -154,7 +174,11 @@ function updateData(z="league") {
 
 function buildTable() {
 
-	var mdcount = config[league].matchdays;
+	// Total matchdays in a round-robin (home + away) league: (N-1) * 2.
+	// Derived from the standings rather than configured so leagues with a
+	// variable team count (e.g., the Frauen-Bundesliga, which went 12→14 in
+	// 2025/26) just work without manual updates.
+	var mdcount = (tabelle.length - 1) * 2;
 	spieltag=tabelle[platz]["matches"];
 	var punkte=tabelle[platz]["points"];
 
