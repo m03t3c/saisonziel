@@ -40,7 +40,16 @@ var txt_verpasst = "<img src='icons/4.png' alt='Saisonziel verpasst'/>";
 var txt_moeglich = "<img src='icons/3.png' alt='Saisonziel nur rechnerisch noch möglich'/>";
 var txt_offen = "<img src='icons/2.png' alt='Saisonziel noch erreichbar'/>";
 
-var saison = 2023;
+// Returns the OpenLiga DB season identifier for the currently running
+// Bundesliga season (the year in which the season started). The Bundesliga
+// runs August–May; fixtures for the upcoming season are published in early
+// July, so we switch over at the start of July.
+function getCurrentSeason() {
+	var now = new Date();
+	return now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+}
+
+var saison = getCurrentSeason();
 var league = "bl1";
 var spiele_egal=0;
 var platz = 15;
@@ -228,10 +237,10 @@ function getMatches() {
 }
 
 function toggleDebug() {
-	if(debug) { 
+	if(debug) {
 		debug=false;
-		league='bl1'; 
-		saison=2023; 
+		league='bl1';
+		saison=getCurrentSeason();
 		document.getElementById("debug").setAttribute('style','display:none;');
 	} else { 
 		debug=true; 
