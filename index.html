@@ -34,6 +34,51 @@ SOFTWARE.
     <link rel="shortcut icon" href="favicon.ico">
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">	
 	<style>
+	/* ----- modern desktop look (mobile-first W3.CSS unchanged below 768px) ----- */
+	html {
+	  background-color: #f4f5f7;
+	  min-height: 100vh;
+	}
+
+	/* System font stack everywhere — overrides W3.CSS's Verdana default. */
+	body, body * {
+	  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+	               "Helvetica Neue", Arial, sans-serif !important;
+	}
+
+	body {
+	  background-color: #ffffff;
+	  color: #1a1a1a;
+	}
+
+	h1 {
+	  font-weight: 600 !important;
+	  letter-spacing: -0.015em;
+	  font-size: 2rem;
+	}
+
+	/* Soften the bar colors a touch and round their corners on the card edges */
+	.w3-indigo { background-color: #3949ab !important; }
+	.w3-teal   { background-color: #00897b !important; }
+
+	/* On wide screens turn <body> itself into a centered card with a soft
+	   shadow. Children (the colored bars) inherit the rounded corners via
+	   overflow:hidden so they sit cleanly against the card edges. */
+	@media (min-width: 768px) {
+	  body {
+	    max-width: 960px;
+	    margin: 32px auto;
+	    box-shadow: 0 4px 24px rgba(20, 30, 60, 0.10),
+	                0 1px 3px rgba(20, 30, 60, 0.06);
+	    border-radius: 12px;
+	    overflow: hidden;
+	  }
+	  h1.w3-container {
+	    padding-top: 28px;
+	    padding-bottom: 4px;
+	  }
+	}
+
 	.collapsible {
 	  background-color: #777;
 	  color: white;
@@ -65,10 +110,10 @@ SOFTWARE.
 	</style>
 </head>
 <body>
-<h1 class="w3-container">Saisonzielrechner</h1>
-<div class="w3-container w3-padding-large">Haben wir den Klassenerhalt schon sicher? K&ouml;nnen wir noch international spielen?</div>
+<h1 class="w3-container" data-i18n="h1">Saisonzielrechner</h1>
+<div class="w3-container w3-padding-large" data-i18n="subtitle">Haben wir den Klassenerhalt schon sicher? K&ouml;nnen wir noch international spielen?</div>
 <div class="w3-bar w3-orange" id="debug" style="display: none;">
-  <span class="w3-bar-item">Debug Data:</span>
+  <span class="w3-bar-item" data-i18n="debugLabel">Debug Data:</span>
   <button class="w3-bar-item w3-button w3-hover-deep-orange tablink" onclick="league='bl1'; saison=2022; spieltag=0; updateData(ziel);" id="debug0">BL1 2022 0</button>
   <button class="w3-bar-item w3-button w3-hover-deep-orange tablink" onclick="league='bl1'; saison=2022; spieltag=10; updateData(ziel);" id="debug10">BL1 2022 10</button>
   <button class="w3-bar-item w3-button w3-hover-deep-orange tablink" onclick="league='bl1'; saison=2022; spieltag=26; updateData(ziel);" id="debug26">BL1 2022 26</button>
@@ -77,7 +122,7 @@ SOFTWARE.
   <button class="w3-bar-item w3-button w3-hover-deep-orange tablink" onclick="league='bl1'; saison=2022; spieltag=33; updateData(ziel);" id="debug33">BL1 2022 33</button>
 </div>
 <div class="w3-bar w3-indigo">
-  <span class="w3-bar-item">Liga:</span>
+  <span class="w3-bar-item" data-i18n="ligaLabel">Liga:</span>
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('bl1');" id="lg-bl1">Bundesliga</button>
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('bl2');" id="lg-bl2">2. Bundesliga</button>
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('fbl1');" id="lg-fbl1">Frauen-Bundesliga</button>
@@ -85,23 +130,23 @@ SOFTWARE.
 </div>
 <div class="w3-container w3-tiny">&nbsp;</div>
 <div class="w3-bar w3-teal">
-  <span class="w3-bar-item">Saisonziel:</span>
+  <span class="w3-bar-item" data-i18n="saisonzielLabel">Saisonziel:</span>
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('league');" id="league">Klassenerhalt</button>
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('int');" id="int">International</button>
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('cl');" id="cl">Champions League</button>
   <button class="w3-bar-item w3-button w3-hover-cyan tablink w3-mobile" onclick="updateData('win');" id="win">Meister</button>
 </div>
-<div class="w3-container w3-padding-large">Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, ben&ouml;tigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel_text" style="display: none;">Ansonsten gen&uuml;gen <span id="ind_ziel"></span> Punkte.</span></div>
+<div class="w3-container w3-padding-large" data-i18n="resultText">Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, ben&ouml;tigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel_text" style="display: none;">Ansonsten gen&uuml;gen <span id="ind_ziel"></span> Punkte.</span></div>
 <div class="w3-container w3-padding-small">
 	<table id="mytable" class="w3-table w3-striped w3-padding-small" style="max-width:600px;">
 		<tr class="w3-khaki">
-			<th>Pl</th>
-			<th>Verein</th>
-			<th>Sp</th>
-			<th>Pk</th>
-			<th>Zi</th>
-			<th>Fhl</th>
-			<th>Status</th>
+			<th data-i18n="th_pos">Pl</th>
+			<th data-i18n="th_team">Verein</th>
+			<th data-i18n="th_md">Sp</th>
+			<th data-i18n="th_pts">Pk</th>
+			<th data-i18n="th_target">Zi</th>
+			<th data-i18n="th_need">Fhl</th>
+			<th data-i18n="th_status">Status</th>
 		</tr>
 		<tr>
 			<td>1&nbsp;</td>
@@ -268,54 +313,54 @@ SOFTWARE.
 	</table>
 </div>
 	
-<button class="collapsible w3-bar w3-button w3-khaki">Legende</button>
+<button class="collapsible w3-bar w3-button w3-khaki" data-i18n="legendTitle">Legende</button>
 <div class="content w3-container w3-white w3-small">
 	<ul class="w3-ul w3-padding-small">
   		<li class="w3-bar w3-padding-small">
-	  		<div class="w3-col w3-center" style="width:60px;">Sp</div>
-	  		<div class="w3-rest">Spieltag</div>
+	  		<div class="w3-col w3-center" style="width:60px;" data-i18n="legend_md_label">Sp</div>
+	  		<div class="w3-rest" data-i18n="legend_md_text">Spieltag</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
-	  		<div class="w3-col w3-center" style="width:60px">Pk</div>
-	  		<div class="w3-rest">Punkte bisher</div>
+	  		<div class="w3-col w3-center" style="width:60px" data-i18n="legend_pts_label">Pk</div>
+	  		<div class="w3-rest" data-i18n="legend_pts_text">Punkte bisher</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
-	  		<div class="w3-col w3-center" style="width:60px">Zi</div>
-	  		<div class="w3-rest">Zielpunkte (zu erreichend f&uuml;r Saisonziel)<br />*) diese Punkte sind in den ausstehenden Spieltagen nicht mehr erreichbar, werden aber der Vollst&auml;ndigkeit noch angezeigt.</div>
+	  		<div class="w3-col w3-center" style="width:60px" data-i18n="legend_target_label">Zi</div>
+	  		<div class="w3-rest" data-i18n="legend_target_text">Zielpunkte (zu erreichend f&uuml;r Saisonziel)<br />*) diese Punkte sind in den ausstehenden Spieltagen nicht mehr erreichbar, werden aber der Vollst&auml;ndigkeit noch angezeigt.</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
-	  		<div class="w3-col w3-center" style="width:60px">Fhl</div>
-	  		<div class="w3-rest">Fehlende Punkte bis zum Saisonziel</div>
+	  		<div class="w3-col w3-center" style="width:60px" data-i18n="legend_need_label">Fhl</div>
+	  		<div class="w3-rest" data-i18n="legend_need_text">Fehlende Punkte bis zum Saisonziel</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-col w3-center" style="width:60px;"><img src="icons/1.png" class="w3-bar-item"></div>
-	  		<div class="w3-rest">Saisonziel erreicht</div>
+	  		<div class="w3-rest" data-i18n="legend_done">Saisonziel erreicht</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-col" style="width:60px;"><img src="icons/2.png" class="w3-bar-item"></div>
-	  		<div class="w3-rest">Saisonziel aus eigener Kraft erreichbar</div>
+	  		<div class="w3-rest" data-i18n="legend_open">Saisonziel aus eigener Kraft erreichbar</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-col" style="width:60px;"><img src="icons/3.png" class="w3-bar-item"></div>
-	  		<div class="w3-rest">Saisonziel nur noch mit Sch&uuml;tzenhilfe erreichbar</div>
+	  		<div class="w3-rest" data-i18n="legend_help">Saisonziel nur noch mit Sch&uuml;tzenhilfe erreichbar</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-col" style="width:60px;"><img src="icons/4.png" class="w3-bar-item"></div>
-	  		<div class="w3-rest">Saisonziel verpasst</div>
+	  		<div class="w3-rest" data-i18n="legend_missed">Saisonziel verpasst</div>
 		</li>
   		<li class="w3-bar w3-padding-small">
 	  		<div class="w3-col" style="width:60px">&nbsp;</div>
-	  		<div class="w3-rest w3-small">Icons von <a target="_blank" href="https://icons8.com">Icons8</a></div>
+	  		<div class="w3-rest w3-small" data-i18n="legend_icons">Icons von <a target="_blank" href="https://icons8.com">Icons8</a></div>
 		</li>
 	</ul>
 </div>
 
-<button class="collapsible w3-bar w3-button w3-khaki">Berechnung</button>
+<button class="collapsible w3-bar w3-button w3-khaki" data-i18n="calcTitle">Berechnung</button>
 <div class="content w3-container w3-white">
-  	<p>Die Berechnungsmethodik basiert auf dem mathematischen R&auml;tsel von <a href="https://www.spektrum.de/raetsel/meister-und-absteiger/1777404" target="_blank">Heinrich Hemme: Welches ist die h&ouml;chste Punktzahl, mit der man absteigen kann?</a>. Dabei werden alle zu erreichenden Punkte zwischen den Pl&auml;tzen 1-16 gleichverteilt.</p>
-  	<p>Ich habe diese Methodik wie folgt adaptiert: Wenn der Absteiger die h&ouml;chste maximale Punktzahl erreicht, muss der erste Nichtabsteiger mindestens einen Punkt mehr haben. (Ich lasse hier die Tordifferenz bewusst au&szlig;er acht, da die Frage, ab wann eine bestimmte Differenz ausreicht, wohl nicht abschlie&szlig;end gekl&auml;rt werden kann (siehe zum Beispiel <a href="https://11freunde.de/artikel/drama-baby-drama/8605211" target="_blank">die Bundesligasaison 1977/78</a>). Und es die Berechnung vereinfacht. Au&szlig;erdem geht es mir darum, ob das Saisonziel aus eigener Kraft erreicht werden kann. Dar&uuml;ber hinaus betrachte ich den Relegationsplatz 16. als einen Abstiegsplatz.)</p>
-  	<p>Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf &auml;ndert sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte eingefahren haben, teilweise nat&uuml;rlich auch &uuml;ber das Ziel hinaus. Dadurch werden hier bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte &uuml;ber Platz 16 zun&auml;chst herausgerechnet. Schematisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
-  	<p class="w3-code">
+  	<p data-i18n="calc_p1">Die Berechnungsmethodik basiert auf dem mathematischen R&auml;tsel von <a href="https://www.spektrum.de/raetsel/meister-und-absteiger/1777404" target="_blank">Heinrich Hemme: Welches ist die h&ouml;chste Punktzahl, mit der man absteigen kann?</a>. Dabei werden alle zu erreichenden Punkte zwischen den Pl&auml;tzen 1-16 gleichverteilt.</p>
+  	<p data-i18n="calc_p2">Ich habe diese Methodik wie folgt adaptiert: Wenn der Absteiger die h&ouml;chste maximale Punktzahl erreicht, muss der erste Nichtabsteiger mindestens einen Punkt mehr haben. (Ich lasse hier die Tordifferenz bewusst au&szlig;er acht, da die Frage, ab wann eine bestimmte Differenz ausreicht, wohl nicht abschlie&szlig;end gekl&auml;rt werden kann (siehe zum Beispiel <a href="https://11freunde.de/artikel/drama-baby-drama/8605211" target="_blank">die Bundesligasaison 1977/78</a>). Und es die Berechnung vereinfacht. Au&szlig;erdem geht es mir darum, ob das Saisonziel aus eigener Kraft erreicht werden kann. Dar&uuml;ber hinaus betrachte ich den Relegationsplatz 16. als einen Abstiegsplatz.)</p>
+  	<p data-i18n="calc_p3">Eine weitere Adaption war notwendig, da Heinrich Hemmes Berechnung den Idealzustand am Saisonbeginn simuliert. Mit fortlaufendem Saisonverlauf &auml;ndert sich allerdings die Situation, da Mannschaften im oberen Teil der Tabelle bereits Punkte eingefahren haben, teilweise nat&uuml;rlich auch &uuml;ber das Ziel hinaus. Dadurch werden hier bei der Verteilung der noch ausstehenden Punkte die bereits erzielten Punkte &uuml;ber Platz 16 zun&auml;chst herausgerechnet. Schematisch ergibt sich damit folgende Berechnung der zu erreichenden Punktzahl:</p>
+  	<p class="w3-code" data-i18n="calc_formula">
 (<br />
 &nbsp;(((ausstehende Spiele - Spiele von Mannschaften auf den Pl&auml;tzen 17-18 gegeneinander) * 3) <br />
 &nbsp;&nbsp;- Summe aller bereits erreichten Punkte &uuml;ber dem letztem Abstiegsplatz <br />
@@ -324,18 +369,23 @@ SOFTWARE.
 ) <br />
 + Punkte der besten noch nicht gesichert-geretteten Mannschaft <br />
 + 1</p>
-  	<p>In diese Berechnungen werden nur Mannschaften einbezogen, die  noch nicht gesichert abgestiegen oder gerettet sind. Die selbe Methodik l&auml;sst sich auch auf das Erreichen der internationalen Pl&auml;tze, der Champions League, und sogar des Meistertitels anwenden.</p>
-  	<p>Die f&uuml;r das jeweilige Saisonziel zu erreichende Punktzahl f&uuml;r Mannschaften, die noch keinen solchen Platz innehaben (also sich unter dem Strich befinden), muss man wie folgt interpretieren: Wieviele Punkte sind notwendig, um auf jeden Fall noch das Saisonziel zu erreichen. Mannschaften, die einen solchen, als Saisonziel qualifizierenden Tabellenplatz schon einnehmen, m&uuml;ssen lediglich diejenige Anzahl an Punkten erreichen, die an den verbleibenden Spieltagen von der am besten nicht-qualifizierten Mannschaft nicht mehr erreicht werden kann (also mehr als (ausstehende Spiele)*3). Diese Unterscheidung ist notwendig, da solche Mannschaften anderen keine Punkte mehr wegnehmen m&uuml;ssen.</p>
-  	<p>F&uuml;r die Tabelle oben kann <a href="javascript:toggleDebug();">ein Debug-Modus aktiviert/deaktiviert werden</a>, um verschiedene Beispielspieltage aus der Saison 2022/2023 zu testen.</p>
-  	<p>Die Daten werden &uuml;brigens per API von <a href="https://www.openligadb.de" target="_blank">OpenLigaDB</a> bereitgestellt, die Icons von <a target="_blank" href="https://icons8.com">Icons8</a>.</p>
-  	<p>Anregungen, Feedback oder Probleme bitte auf der <a href="https://github.com/m03t3c/saisonziel/issues" target="_blank">GitHub-Seite dieses Projektes</a> melden.</p>
+  	<p data-i18n="calc_p4">In diese Berechnungen werden nur Mannschaften einbezogen, die  noch nicht gesichert abgestiegen oder gerettet sind. Die selbe Methodik l&auml;sst sich auch auf das Erreichen der internationalen Pl&auml;tze, der Champions League, und sogar des Meistertitels anwenden.</p>
+  	<p data-i18n="calc_p5">Die f&uuml;r das jeweilige Saisonziel zu erreichende Punktzahl f&uuml;r Mannschaften, die noch keinen solchen Platz innehaben (also sich unter dem Strich befinden), muss man wie folgt interpretieren: Wieviele Punkte sind notwendig, um auf jeden Fall noch das Saisonziel zu erreichen. Mannschaften, die einen solchen, als Saisonziel qualifizierenden Tabellenplatz schon einnehmen, m&uuml;ssen lediglich diejenige Anzahl an Punkten erreichen, die an den verbleibenden Spieltagen von der am besten nicht-qualifizierten Mannschaft nicht mehr erreicht werden kann (also mehr als (ausstehende Spiele)*3). Diese Unterscheidung ist notwendig, da solche Mannschaften anderen keine Punkte mehr wegnehmen m&uuml;ssen.</p>
+  	<p data-i18n="calc_p6">F&uuml;r die Tabelle oben kann <a href="javascript:toggleDebug();">ein Debug-Modus aktiviert/deaktiviert werden</a>, um verschiedene Beispielspieltage aus der Saison 2022/2023 zu testen.</p>
+  	<p data-i18n="calc_p7">Die Daten werden &uuml;brigens per API von <a href="https://www.openligadb.de" target="_blank">OpenLigaDB</a> bereitgestellt, die Icons von <a target="_blank" href="https://icons8.com">Icons8</a>.</p>
+  	<p data-i18n="calc_p8">Anregungen, Feedback oder Probleme bitte auf der <a href="https://github.com/m03t3c/saisonziel/issues" target="_blank">GitHub-Seite dieses Projektes</a> melden.</p>
 </div>
-<button class="collapsible w3-bar w3-button w3-khaki">Hintergrund</button>
+<button class="collapsible w3-bar w3-button w3-khaki" data-i18n="bgTitle">Hintergrund</button>
 <div class="content w3-container w3-white">
-  	<p>Als Fan des VfB Stuttgarts erlebe ich im Herbst/Winter 2023 eine lang vermisste Euphorie ob der guten Ergebnisse der Mannschaft. Dennoch haben die letzten Jahre mit zwei Abstiegen und vielen bangen Momenten im Abstiegskampf tiefe Narben hinterlassen, so dass es erstmal gilt ein solches erneutes Szenario nicht wieder zu erleben. Und w&auml;hrend es Erfahrungswerte gibt ("mit 40 Punkten ist man gerettet"), m&ouml;chte ich lieber ganz genau wissen, ab wann der VfB nichts mehr mit dem Abstieg zu tun hat. Und so entstand dieses kleine Projekt.</p>
+  	<p data-i18n="bg_p1">Als Fan des VfB Stuttgarts erlebe ich im Herbst/Winter 2023 eine lang vermisste Euphorie ob der guten Ergebnisse der Mannschaft. Dennoch haben die letzten Jahre mit zwei Abstiegen und vielen bangen Momenten im Abstiegskampf tiefe Narben hinterlassen, so dass es erstmal gilt ein solches erneutes Szenario nicht wieder zu erleben. Und w&auml;hrend es Erfahrungswerte gibt ("mit 40 Punkten ist man gerettet"), m&ouml;chte ich lieber ganz genau wissen, ab wann der VfB nichts mehr mit dem Abstieg zu tun hat. Und so entstand dieses kleine Projekt.</p>
+</div>
+<div class="w3-bar w3-light-grey">
+  <span class="w3-bar-item">Sprache / Language:</span>
+  <button class="w3-bar-item w3-button w3-hover-grey langlink" onclick="setLang('de');" id="lang-de">DE</button>
+  <button class="w3-bar-item w3-button w3-hover-grey langlink" onclick="setLang('en');" id="lang-en">EN</button>
 </div>
 <div class="w3-container w3-white w3-right-align w3-tiny">
-  	<p>Copyright &copy; 2024 <a href="https://github.com/m03t3c/saisonziel/" target="_blank">m03t3c</a>
+  	<p data-i18n="footer">Copyright &copy; 2024 <a href="https://github.com/m03t3c/saisonziel/" target="_blank">m03t3c</a>
   	</p>
 </div>
 <script>
