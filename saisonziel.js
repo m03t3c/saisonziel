@@ -71,6 +71,23 @@ var config = {
 			cl:     { pos: 3,  label: "Champions League" },      // top 3 (1 direct group stage + 2 qualifying)
 			win:    { pos: 1,  label: "Meister" }                // top 1 = title + direct CL Ligenphase
 		}
+	},
+	fbl2: {
+		name: "2. Frauen-Bundesliga",
+		goals: {
+			// 14-team format (2025/26); bottom 2 directly relegated to the
+			// Frauen-Regionalliga. Same caveat as fbl1: bump if the league
+			// restructures.
+			league: { pos: 12, label: "Klassenerhalt" },         // top 12 of 14 safe
+			// Unlike the men's 2. Bundesliga, fbl2 has NO 3rd-place
+			// Aufstiegsrelegation playoff — only the top 2 are promoted to
+			// the Frauen-Bundesliga. So `int` collapses onto `cl` at pos=2,
+			// same trick fbl1 uses to collapse `int` onto `cl` at pos=3.
+			// Both buttons therefore compute identical targets for fbl2.
+			int:    { pos: 2,  label: "Aufstieg" },              // top 2 (= same as cl)
+			cl:     { pos: 2,  label: "Direktaufstieg" },        // top 2 directly promoted
+			win:    { pos: 1,  label: "Meister" }                // top 1
+		}
 	}
 };
 
