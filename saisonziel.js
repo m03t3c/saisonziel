@@ -105,6 +105,7 @@ var translations = {
 		debugLabel: "Debug Data:",
 		ligaLabel: "Liga:",
 		saisonzielLabel: "Saisonziel:",
+		matchdayLabel: "Spieltag:",
 		resultText: 'Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, benötigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel_text" style="display: none;">Ansonsten genügen <span id="ind_ziel"></span> Punkte.</span>',
 		th_pos: "Pl",
 		th_team: "Verein",
@@ -148,6 +149,7 @@ var translations = {
 		debugLabel: "Debug Data:",
 		ligaLabel: "League:",
 		saisonzielLabel: "Goal:",
+		matchdayLabel: "Matchday:",
 		resultText: 'Teams currently below the line for their seasonal goal need <span id="Zielpunkte"></span> points.<br /><span id="ind_ziel_text" style="display: none;">Otherwise <span id="ind_ziel"></span> points are enough.</span>',
 		th_pos: "Pos",
 		th_team: "Club",
@@ -217,6 +219,10 @@ var ziel;
  
 var gotMatches = false;
 var tabelle = [];
+var liveTabelle = [];      // snapshot of the live API standings; tabelle is replaced with a historical
+                           // recomputation when viewMatchday is set, so we keep the live one separate
+                           // for the navigator (it always reflects the real current matchday).
+var viewMatchday = null;   // null = live view; integer = render standings as of that matchday
 var matches = [];
 var request = "";
 
@@ -279,7 +285,16 @@ function setLang(l) {
 	updateData(ziel);
 }
 
+// Toggle the global loading state. While `body.is-loading` is set, the table
+// dims to ~35% opacity (CSS in index.html) and the centered gear-overlay SVG
+// is shown. Bracket every API-driven refresh so the user gets feedback while
+// standings + matches requests are in flight (the two requests are sequential,
+// so a single show/hide pair around the whole chain is enough).
+function showLoading() { document.body.classList.add("is-loading"); }
+function hideLoading() { document.body.classList.remove("is-loading"); }
+
 function updateData(z="league") {
+	showLoading();
 	ziel=z;
 	if(!config[league]) league = "bl1";
 	var goalDef = config[league].goals[ziel];
@@ -337,14 +352,17 @@ function updateData(z="league") {
 	request.addEventListener('load', function(event) {
 	   if (request.status >= 200 && request.status < 300) {
 	    				tabelle=JSON.parse(request.responseText);
+		  	liveTabelle=tabelle;
 		  	spieltag=tabelle[platz]["matches"];
 		  	var punkte=tabelle[platz]["points"];
 		  	var spiele_egal_mannschaften = new Array();
 		  	getMatches();
 	   } else {
 	     	console.warn(request.statusText, request.responseText);
+	     	hideLoading();
 	   }
 	});
+	request.addEventListener('error', hideLoading);
 	request.send();
 }
 
@@ -358,6 +376,21 @@ function buildTable() {
 	var txt_verpasst = "<img src='icons/4.png' alt='" + t.legend_missed + "'/>";
 	var txt_moeglich = "<img src='icons/3.png' alt='" + t.legend_help   + "'/>";
 	var txt_offen    = "<img src='icons/2.png' alt='" + t.legend_open   + "'/>";
+
+	// Render the matchday navigator (1..currentMatchday) and, if the user has
+	// selected a past matchday, replace `tabelle` with a historical recompute
+	// derived from the already-fetched `matches`. The rest of the algorithm
+	// then runs unchanged against the rewound standings.
+	var currentMatchday = 0;
+	for (let i = 0; i < liveTabelle.length; i++) {
+		if (liveTabelle[i]["matches"] > currentMatchday) currentMatchday = liveTabelle[i]["matches"];
+	}
+	renderMatchdayNav(currentMatchday);
+	if (viewMatchday !== null && viewMatchday < currentMatchday) {
+		tabelle = computeStandingsAtMatchday(matches, viewMatchday, liveTabelle);
+	} else {
+		tabelle = liveTabelle;
+	}
 
 	// Total matchdays in a round-robin (home + away) league: (N-1) * 2.
 	// Derived from the standings rather than configured so leagues with a
@@ -403,7 +436,18 @@ function buildTable() {
 	}
 	if(debug) console.log("# games excluded: "+gamesExcluded+".\ntotal games:"+gamesCount+".\npoints difference:"+diff_vorgaenger);
 	// target points calculation:
-	var zielpunkte=Math.floor(((((gamesCount-gamesExcluded)*3)-diff_vorgaenger)/(countTeams))+includedTeams[0]["points"])+1; 
+	// When countTeams is 0, every current qualifier is mathematically out of
+	// reach for the threshold team — the qualifying spots are locked. The
+	// distribution formula would divide by zero (→ Infinity). The meaningful
+	// target in that case is "one more point than the worst qualifier's
+	// max-possible end-of-season total" (= the existing ind_ziel fallback),
+	// which is what a below-line team would need to leapfrog the line.
+	var zielpunkte;
+	if(countTeams === 0) {
+		zielpunkte = ((mdcount-tabelle[platz]["matches"])*3)+1+tabelle[platz]["points"];
+	} else {
+		zielpunkte = Math.floor(((((gamesCount-gamesExcluded)*3)-diff_vorgaenger)/(countTeams))+includedTeams[0]["points"])+1;
+	}
 	if(debug) { // some debugging output
 		console.log("Target points rounded:"+zielpunkte);
 	  	console.log("Target points calculatory (not rounded, not +1):"+((((((gamesCount-gamesExcluded)*3)-diff_vorgaenger)/(countTeams))+includedTeams[0]["points"]))+
@@ -466,6 +510,7 @@ function buildTable() {
 		});
 	}
 
+	hideLoading();
 }
 
 function getMatches() {
@@ -479,8 +524,10 @@ function getMatches() {
 	   		buildTable();
 	   } else {
 	     	console.warn(openMatches.statusText, openMatches.responseText);
+	     	hideLoading();
 	   }
 	});
+	openMatches.addEventListener('error', hideLoading);
 	openMatches.send();
 	
 }
@@ -498,7 +545,100 @@ function toggleDebug() {
 		spieltag=0;
 		document.getElementById("debug").setAttribute('style','display:block;');
 	}
+	viewMatchday = null;
 	updateData(ziel);
+}
+
+// Recomputes the standings table as of `targetMatchday` by replaying every
+// finished match with `groupOrderID <= targetMatchday` from the season's full
+// match payload. Returns a new array shaped like the OpenLiga DB standings
+// (only the fields buildTable touches: teamInfoId, teamName, shortName,
+// matches, points; plus goals/goalDiff used for tiebreaker sorting).
+// `referenceTabelle` provides the team roster + display names for the season.
+function computeStandingsAtMatchday(allMatches, targetMatchday, referenceTabelle) {
+	var teams = {};
+	for (let i = 0; i < referenceTabelle.length; i++) {
+		var ref = referenceTabelle[i];
+		teams[ref["teamInfoId"]] = {
+			teamInfoId: ref["teamInfoId"],
+			teamName:   ref["teamName"],
+			shortName:  ref["shortName"],
+			teamIconUrl: ref["teamIconUrl"],
+			points: 0, matches: 0, won: 0, draw: 0, lost: 0,
+			goals: 0, opponentGoals: 0, goalDiff: 0
+		};
+	}
+	for (let m = 0; m < allMatches.length; m++) {
+		var match = allMatches[m];
+		if (!match["group"] || match["group"]["groupOrderID"] > targetMatchday) continue;
+		if (!match["matchIsFinished"]) continue;
+		var results = match["matchResults"] || [];
+		if (results.length === 0) continue;
+		// Endergebnis = resultTypeID 2; fall back to the last entry for safety.
+		var final = null;
+		for (let r = 0; r < results.length; r++) {
+			if (results[r]["resultTypeID"] === 2) { final = results[r]; break; }
+		}
+		if (!final) final = results[results.length - 1];
+		var t1 = teams[match["team1"]["teamId"]];
+		var t2 = teams[match["team2"]["teamId"]];
+		if (!t1 || !t2) continue;
+		var g1 = final["pointsTeam1"], g2 = final["pointsTeam2"];
+		t1.matches++; t2.matches++;
+		t1.goals += g1; t2.goals += g2;
+		t1.opponentGoals += g2; t2.opponentGoals += g1;
+		if (g1 > g2)      { t1.won++;  t2.lost++; t1.points += 3; }
+		else if (g2 > g1) { t2.won++;  t1.lost++; t2.points += 3; }
+		else              { t1.draw++; t2.draw++; t1.points++; t2.points++; }
+	}
+	var arr = [];
+	for (var k in teams) {
+		teams[k].goalDiff = teams[k].goals - teams[k].opponentGoals;
+		arr.push(teams[k]);
+	}
+	// German football tiebreakers: points → goal difference → goals scored.
+	arr.sort(function(a, b) {
+		if (b.points   !== a.points)   return b.points   - a.points;
+		if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+		return b.goals - a.goals;
+	});
+	return arr;
+}
+
+// Renders the matchday navigator (buttons 1..currentMatchday). The button for
+// the current matchday equates to "live" and clears viewMatchday when chosen.
+// Hidden in debug mode (the orange debug bar already serves that role) and
+// when no matches have been played yet.
+function renderMatchdayNav(currentMatchday) {
+	var wrapper = document.getElementById("matchday-nav-wrapper");
+	var nav = document.getElementById("matchday-nav");
+	if (!wrapper || !nav) return;
+	if (debug || currentMatchday < 1) {
+		wrapper.style.display = "none";
+		return;
+	}
+	nav.innerHTML = "";
+	for (let n = 1; n <= currentMatchday; n++) {
+		var btn = document.createElement("button");
+		btn.className = "w3-button w3-small w3-border w3-round";
+		btn.style.padding = "2px 8px";
+		btn.style.minWidth = "34px";
+		btn.textContent = n;
+		var isActive = (viewMatchday === n) || (viewMatchday === null && n === currentMatchday);
+		if (isActive) btn.className += " w3-teal";
+		(function(md) { btn.onclick = function() { setViewMatchday(md); }; })(n);
+		nav.appendChild(btn);
+	}
+	wrapper.style.display = "";
+}
+
+function setViewMatchday(n) {
+	var currentMatchday = 0;
+	for (let i = 0; i < liveTabelle.length; i++) {
+		if (liveTabelle[i]["matches"] > currentMatchday) currentMatchday = liveTabelle[i]["matches"];
+	}
+	viewMatchday = (n >= currentMatchday) ? null : n;
+	buildTable();
 }
 
 // Switch the active league. Preserves the currently selected goal (Saisonziel)
@@ -512,5 +652,6 @@ function setLeague(l) {
 	}
 	league = l;
 	saison = getCurrentSeason();
+	viewMatchday = null;
 	updateData(ziel);
 }
