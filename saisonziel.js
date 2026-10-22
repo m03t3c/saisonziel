@@ -38,6 +38,10 @@ var saisonziel="ChampionsLeague";
 // configured per league and adapts automatically when a league's team count
 // changes (e.g., the Frauen-Bundesliga went 12→14 teams between 2024/25 and
 // 2025/26).
+//
+// `api` is the OpenLiga DB league shortcut. It usually equals the config key,
+// but OpenLiga DB renamed the women's leagues for 2026/27 (fbl1 → ffb1,
+// fbl2 → ffb2), so the slug used in the UI and the API shortcut can differ.
 var config = {
 	bl1: {
 		name: { de: "Bundesliga", en: "Bundesliga" },
@@ -58,6 +62,7 @@ var config = {
 		}
 	},
 	fbl1: {
+		api: "ffb1",
 		name: { de: "Frauen-Bundesliga", en: "Women's Bundesliga" },
 		goals: {
 			// `league` assumes the 14-team format with bottom 2 directly relegated
@@ -74,6 +79,7 @@ var config = {
 		}
 	},
 	fbl2: {
+		api: "ffb2",
 		name: { de: "2. Frauen-Bundesliga", en: "Women's 2. Bundesliga" },
 		goals: {
 			// 14-team format (2025/26); bottom 2 directly relegated to the
@@ -293,6 +299,8 @@ function setLang(l) {
 function showLoading() { document.body.classList.add("is-loading"); }
 function hideLoading() { document.body.classList.remove("is-loading"); }
 
+function apiLeague() { return config[league].api || league; }
+
 function updateData(z="league") {
 	showLoading();
 	ziel=z;
@@ -347,11 +355,20 @@ function updateData(z="league") {
 	request = new XMLHttpRequest();
 	
 	if(debug) request.open("GET","testdata/data-2022-"+spieltag+".json");
-	else request.open("GET","https://api.openligadb.de/getbltable/"+league+"/"+saison);
+	else request.open("GET","https://api.openligadb.de/getbltable/"+apiLeague()+"/"+saison);
 	request.setRequestHeader("accept","text/json");
 	request.addEventListener('load', function(event) {
 	   if (request.status >= 200 && request.status < 300) {
 	    				tabelle=JSON.parse(request.responseText);
+		  	if(tabelle.length <= platz) {
+		  		// OpenLiga DB has no standings for this league/season yet
+		  		// (e.g. ffb2 early in 2026/27) — clear the table instead of
+		  		// throwing on tabelle[platz] and leaving the spinner up.
+		  		console.warn("no standings for "+apiLeague()+"/"+saison);
+		  		clearTable();
+		  		hideLoading();
+		  		return;
+		  	}
 		  	liveTabelle=tabelle;
 		  	spieltag=tabelle[platz]["matches"];
 		  	var punkte=tabelle[platz]["points"];
@@ -513,10 +530,19 @@ function buildTable() {
 	hideLoading();
 }
 
+function clearTable() {
+	var targettable = document.getElementById("mytable");
+	while(targettable.rows.length > 1) targettable.deleteRow(-1);
+	document.getElementById("Zielpunkte").innerHTML = "–";
+	document.getElementById("ind_ziel_text").style.display = "none";
+	var navWrapper = document.getElementById("matchday-nav-wrapper");
+	if(navWrapper) navWrapper.style.display = "none";
+}
+
 function getMatches() {
 
 	var openMatches = new XMLHttpRequest();
-	openMatches.open("GET","https://api.openligadb.de/getmatchdata/"+league+"/"+saison);
+	openMatches.open("GET","https://api.openligadb.de/getmatchdata/"+apiLeague()+"/"+saison);
 	openMatches.setRequestHeader("accept","text/json");
 	openMatches.addEventListener('load', function(event) {
 	   if (openMatches.status >= 200 && openMatches.status < 300) {
