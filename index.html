@@ -30,7 +30,7 @@ SOFTWARE.
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Bundesliga Saisonzielrechner</title>
-    <script src="saisonziel.js?v=2" defer></script>
+    <script src="saisonziel.js?v=3" defer></script>
     <link rel="shortcut icon" href="favicon.ico">
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">	
 	<style>
@@ -156,6 +156,10 @@ SOFTWARE.
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('bl2');" id="lg-bl2">2. Bundesliga</button>
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('fbl1');" id="lg-fbl1">Frauen-Bundesliga</button>
   <button class="w3-bar-item w3-button w3-hover-deep-purple leaguelink w3-mobile" onclick="setLeague('fbl2');" id="lg-fbl2">2. Frauen-Bundesliga</button>
+  <div class="w3-bar-item w3-right w3-mobile">
+    <label for="season-select" data-i18n="seasonLabel">Saison:</label>
+    <select id="season-select" onchange="setSeason(this.value);" style="margin-left: 4px; color: #1a1a1a; border: none; border-radius: 4px; padding: 2px 4px;"></select>
+  </div>
 </div>
 <div class="w3-container w3-tiny">&nbsp;</div>
 <div class="w3-bar w3-teal">

@@ -39,11 +39,16 @@ var saisonziel="ChampionsLeague";
 // changes (e.g., the Frauen-Bundesliga went 12→14 teams between 2024/25 and
 // 2025/26).
 //
-// `api` is the OpenLiga DB league shortcut. It usually equals the config key,
-// but OpenLiga DB renamed the women's leagues for 2026/27 (fbl1 → ffb1,
-// fbl2 → ffb2), so the slug used in the UI and the API shortcut can differ.
+// `api` overrides the OpenLiga DB league shortcut from season `since` onward.
+// The shortcut usually equals the config key, but OpenLiga DB renamed the
+// women's leagues for 2026/27 (fbl1 → ffb1, fbl2 → ffb2), so earlier seasons
+// still live under the old shortcut.
+//
+// `firstSeason` is the earliest season offered in the season selector — the
+// first one OpenLiga DB has complete standings for.
 var config = {
 	bl1: {
+		firstSeason: 2009,
 		name: { de: "Bundesliga", en: "Bundesliga" },
 		goals: {
 			league: { pos: 15, label: { de: "Klassenerhalt",   en: "Avoid relegation" } },  // top 15 safe (16 = Relegationsplatz)
@@ -53,6 +58,7 @@ var config = {
 		}
 	},
 	bl2: {
+		firstSeason: 2009,
 		name: { de: "2. Bundesliga", en: "2. Bundesliga" },
 		goals: {
 			league: { pos: 15, label: { de: "Klassenerhalt",       en: "Avoid relegation" } },  // top 15 safe (16 = Relegationsplatz)
@@ -62,7 +68,8 @@ var config = {
 		}
 	},
 	fbl1: {
-		api: "ffb1",
+		api: { since: 2026, shortcut: "ffb1" },
+		firstSeason: 2024,
 		name: { de: "Frauen-Bundesliga", en: "Women's Bundesliga" },
 		goals: {
 			// `league` assumes the 14-team format with bottom 2 directly relegated
@@ -79,7 +86,8 @@ var config = {
 		}
 	},
 	fbl2: {
-		api: "ffb2",
+		api: { since: 2026, shortcut: "ffb2" },
+		firstSeason: 2025,
 		name: { de: "2. Frauen-Bundesliga", en: "Women's 2. Bundesliga" },
 		goals: {
 			// 14-team format (2025/26); bottom 2 directly relegated to the
@@ -112,6 +120,7 @@ var translations = {
 		ligaLabel: "Liga:",
 		saisonzielLabel: "Saisonziel:",
 		matchdayLabel: "Spieltag:",
+		seasonLabel: "Saison:",
 		resultText: 'Mannschaften, die aktuell in der Tabelle noch nicht auf einem Platz ihres Saisonziels stehen, benötigen <span id="Zielpunkte"></span> Punkte.<br /><span id="ind_ziel_text" style="display: none;">Ansonsten genügen <span id="ind_ziel"></span> Punkte.</span>',
 		th_pos: "Pl",
 		th_team: "Verein",
@@ -156,6 +165,7 @@ var translations = {
 		ligaLabel: "League:",
 		saisonzielLabel: "Goal:",
 		matchdayLabel: "Matchday:",
+		seasonLabel: "Season:",
 		resultText: 'Teams currently below the line for their seasonal goal need <span id="Zielpunkte"></span> points.<br /><span id="ind_ziel_text" style="display: none;">Otherwise <span id="ind_ziel"></span> points are enough.</span>',
 		th_pos: "Pos",
 		th_team: "Club",
@@ -299,7 +309,40 @@ function setLang(l) {
 function showLoading() { document.body.classList.add("is-loading"); }
 function hideLoading() { document.body.classList.remove("is-loading"); }
 
-function apiLeague() { return config[league].api || league; }
+function apiLeague() {
+	var api = config[league].api;
+	return (api && saison >= api.since) ? api.shortcut : league;
+}
+
+// Fills the season <select> with every season from the current one back to
+// the active league's firstSeason, labelled "2025/26" style.
+function renderSeasonSelect() {
+	var sel = document.getElementById("season-select");
+	if(!sel) return;
+	sel.innerHTML = "";
+	for(var y = getCurrentSeason(); y >= (config[league].firstSeason || y); y--) {
+		var opt = document.createElement("option");
+		opt.value = y;
+		opt.textContent = y + "/" + String(y + 1).slice(-2);
+		if(y === saison) opt.selected = true;
+		sel.appendChild(opt);
+	}
+}
+
+// Switch the active season. Like setLeague(), debug mode (bound to the bl1
+// 2022 testdata) is exited and the matchday navigator resets to the last
+// played matchday of the chosen season.
+function setSeason(y) {
+	y = parseInt(y, 10);
+	if(isNaN(y) || y === saison) return;
+	if(debug) {
+		debug = false;
+		document.getElementById("debug").setAttribute('style','display:none;');
+	}
+	saison = y;
+	viewMatchday = null;
+	updateData(ziel);
+}
 
 function updateData(z="league") {
 	showLoading();
@@ -311,6 +354,7 @@ function updateData(z="league") {
 		goalDef = config[league].goals.league;
 	}
 	platz = goalDef.pos;
+	renderSeasonSelect();
 
 	if(debug) console.log("updating Data for:\nLeague:"+league+".\ntarget:"+ziel+".\nstanding:"+platz);
 	tabelle = [];
@@ -376,6 +420,7 @@ function updateData(z="league") {
 		  	getMatches();
 	   } else {
 	     	console.warn(request.statusText, request.responseText);
+	     	clearTable();
 	     	hideLoading();
 	   }
 	});
@@ -550,6 +595,7 @@ function getMatches() {
 	   		buildTable();
 	   } else {
 	     	console.warn(openMatches.statusText, openMatches.responseText);
+	     	clearTable();
 	     	hideLoading();
 	   }
 	});
@@ -675,9 +721,11 @@ function setLeague(l) {
 	if(debug) {
 		debug = false;
 		document.getElementById("debug").setAttribute('style','display:none;');
+		saison = getCurrentSeason();
 	}
 	league = l;
-	saison = getCurrentSeason();
+	// Keep the chosen season unless the new league has no data that far back.
+	if(saison < (config[l].firstSeason || saison)) saison = getCurrentSeason();
 	viewMatchday = null;
 	updateData(ziel);
 }
